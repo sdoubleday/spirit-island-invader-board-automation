@@ -5,6 +5,38 @@ $scriptBody = "using module $here\$sut"
 $script = [ScriptBlock]::Create($scriptBody)
 . $script
 
+Describe "Base Class CardContainer" {
+    Context "Class Basics" {
+        BeforeAll {
+            $obj = [CardContainer]::NEW()
+            $classname = 'CardContainer'
+        }
+
+        $Properties = @(
+            ,'Ref Parent'
+            ,'Ref DrawFrom'
+        )
+        $Methods = @(
+            ,'DrawCard'
+            ,'PlaceDrawnCard'
+        )
+
+#region run basic tests
+        $ActualProperties = $obj | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty @{name='nameAndType';expression={$_.name + ' - ' + $_.TypeName}}
+        $ActualMethods = $obj | Get-Member -MemberType Method | Select-Object -ExpandProperty name 
+        foreach ($p in $Properties) {
+            IT "Class $classname should have property $p" {
+                $ActualProperties -contains $p | SHOULD BE $true }
+        }<#End Foreach Properties#>
+
+        foreach ($m in $Methods) {
+            IT "Class $classname should have method $m" {
+                $ActualMethods -contains $m | SHOULD BE $true }
+        }<#End Foreach Properties#>
+#endregion run basic tests
+
+    }<#END CONTEXT Class Basics#>
+} <#END Describe "Base Class CardContainer" #>
 
 Describe "Class SpiritIslandGameInvaderBoard" {
     Context "Class Basics" {
@@ -129,40 +161,40 @@ Describe "Class Card" {
 
     }<#END CONTEXT Class Basics#>
 
-    CONTEXT "New-Object-Card Returns a card with the appropriate values" {
+    CONTEXT "New-Object-Card-Default Returns a card with the appropriate values" {
         
-        IT "New-Object-Card returns a Card object" {
-            ( $PSCO_Card | New-Object-Card ).GetType().Name | Should Be 'Card' }
+        IT "New-Object-Card-Default returns a Card object" {
+            ( $PSCO_Card | New-Object-Card-Default ).GetType().Name | Should Be 'Card' }
 
-        IT "New-Object-Card CardText[0] is $($CardText[0])" {
-            ( $PSCO_Card | New-Object-Card ).CardText[0] | Should Be $CardText[0] }
+        IT "New-Object-Card-Default CardText[0] is $($CardText[0])" {
+            ( $PSCO_Card | New-Object-Card-Default ).CardText[0] | Should Be $CardText[0] }
 
-        IT "New-Object-Card CardText[1] is $($CardText[1])" {
-            ( $PSCO_Card | New-Object-Card ).CardText[0] | Should Be $CardText[1] }
+        IT "New-Object-Card-Default CardText[1] is $($CardText[1])" {
+            ( $PSCO_Card | New-Object-Card-Default ).CardText[0] | Should Be $CardText[1] }
 
-        IT "New-Object-Card CardTitle is $($CardTitle)" {
-            ( $PSCO_Card | New-Object-Card ).CardTitle | Should Be $CardTitle }
+        IT "New-Object-Card-Default CardTitle is $($CardTitle)" {
+            ( $PSCO_Card | New-Object-Card-Default ).CardTitle | Should Be $CardTitle }
 
-        IT "New-Object-Card GameSet is $($GameSet)" {
-            ( $PSCO_Card | New-Object-Card ).GameSet | Should Be $GameSet }
+        IT "New-Object-Card-Default GameSet is $($GameSet)" {
+            ( $PSCO_Card | New-Object-Card-Default ).GameSet | Should Be $GameSet }
 
-        IT "New-Object-Card CardType is $($CardType)" {
-            ( $PSCO_Card | New-Object-Card ).CardType | Should Be CardType }
+        IT "New-Object-Card-Default CardType is $($CardType)" {
+            ( $PSCO_Card | New-Object-Card-Default ).CardType | Should Be CardType }
 
-        IT "New-Object-Card Invoke-Command OnPlayScripts[0] is 'OnPlayScripts1'" {
-            Invoke-Command ( $PSCO_Card | New-Object-Card ).OnPlayScripts[0] | Should Be 'OnPlayScripts1' }
+        IT "New-Object-Card-Default Invoke-Command OnPlayScripts[0] is 'OnPlayScripts1'" {
+            Invoke-Command ( $PSCO_Card | New-Object-Card-Default ).OnPlayScripts[0] | Should Be 'OnPlayScripts1' }
 
-        IT "New-Object-Card Invoke-Command OnPlayScripts[1] is '$CardType'" {
-            Invoke-Command ( $PSCO_Card | New-Object-Card ).OnPlayScripts[1] | Should Be $CardType }
+        IT "New-Object-Card-Default Invoke-Command OnPlayScripts[1] is '$CardType'" {
+            Invoke-Command ( $PSCO_Card | New-Object-Card-Default ).OnPlayScripts[1] | Should Be $CardType }
 
-        IT "New-Object-Card Invoke-Command OnDiscardScripts[0] is 'OnDiscardScripts1'" {
-            Invoke-Command ( $PSCO_Card | New-Object-Card ).OnDiscardScripts[0] | Should Be 'OnDiscardScripts1' }
+        IT "New-Object-Card-Default Invoke-Command OnDiscardScripts[0] is 'OnDiscardScripts1'" {
+            Invoke-Command ( $PSCO_Card | New-Object-Card-Default ).OnDiscardScripts[0] | Should Be 'OnDiscardScripts1' }
         
-    } <#END CONTEXT "New-Object-Card Returns a card with the appropriate values"#>
+    } <#END CONTEXT "New-Object-Card-Default Returns a card with the appropriate values"#>
     
     CONTEXT "Card functionality" {
         
-        IT  {}
+        IT 'Card stub' {$true | SHOULD BE $false}
 
     }
 
@@ -175,9 +207,14 @@ Describe "Class Deck" {
             $classname = 'Deck'
         }
 
+        It "$classname.GetType().BaseType | Should Be 'CardContainer'" {
+            $obj.GetType().BaseType | Should Be 'CardContainer' }
+
         $Properties = @(
             'Card[] Cards'
+            ,'ScriptBlock[] OnEmptyScripts'
             ,'Ref Parent'
+            ,'Ref DrawFrom'
         )
         $Methods = @(
             'DrawFromTop'
@@ -186,6 +223,9 @@ Describe "Class Deck" {
             ,'PlaceOnBottom'
             ,'InsertAtPosition'
             ,'Shuffle'
+            ,'RunOnEmptyScripts'
+            ,'DrawCard'
+            ,'PlaceDrawnCard'
         )
 
 #region run basic tests
@@ -211,6 +251,9 @@ Describe "Class InvaderCardRegister" {
             $obj = [InvaderCardRegister]::NEW()
             $classname = 'InvaderCardRegister'
         }
+        
+        It "$classname.GetType().BaseType | Should Be 'CardRegister'" {
+            $obj.GetType().BaseType | Should Be 'CardRegister' }
 
         $Properties = @(
             'Card Card'
@@ -219,11 +262,13 @@ Describe "Class InvaderCardRegister" {
             ,'String[][] StackOfInstructionsByTurn'
             ,'String[] InstructionsForUpcomingTurn'
             ,'Ref Parent'
+            ,'Ref DrawFrom'
         )
         $Methods = @(
             'ActivateRegister'
             ,'PrintInstructions'
             ,'PassCard'
+            ,'EmptyRegister'
         )
 
 #region run basic tests
@@ -249,15 +294,21 @@ Describe "Class CardRegister" {
             $obj = [CardRegister]::NEW()
             $classname = 'CardRegister'
         }
+        
+        It "$classname.GetType().BaseType | Should Be 'CardContainer'" {
+            $obj.GetType().BaseType | Should Be 'CardContainer' }
 
         $Properties = @(
             'Card Card'
             ,'Ref Parent'
+            ,'Ref DrawFrom'
         )
         $Methods = @(
             'ActivateRegister'
             ,'PrintInstructions'
-            ,'PassCard'
+            ,'DrawCard'
+            ,'PlaceDrawnCard'
+            ,'EmptyRegister'
         )
 
 #region run basic tests

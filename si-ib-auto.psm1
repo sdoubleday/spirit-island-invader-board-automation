@@ -1,4 +1,6 @@
-﻿CLASS SpiritIslandGameInvaderBoard {
+﻿using module '.\New-FunctionFromConstructors\New-FunctionFromConstructors.psm1'
+
+CLASS SpiritIslandGameInvaderBoard {
 #region properties
 
 
@@ -17,7 +19,7 @@
 
 }
 
-
+#region Class Card        
 CLASS Card {
 #region properties
     [String[]]$CardText
@@ -32,8 +34,10 @@ CLASS Card {
 
 
 #region constructors
+    [ConstructorName('Empty')]
     Card () {}
 
+    [ConstructorName('Default')]
     Card ([String[]]$CardText,
     [String]$CardTitle,
     [GameSet]$CardGameSet,
@@ -66,6 +70,30 @@ CLASS Card {
 #endregion methods
 
 }
+
+        FUNCTION New-Object-Card-Empty {
+        [CmdletBinding()]
+        PARAM()
+        BEGIN{}
+        PROCESS{
+        $([Card].GetConstructors() | Where-Object {$_.GetCustomAttributes('ConstructorName').Name -Like 'Empty'} ).Invoke(@())
+        }
+        END{}
+        }
+        
+
+        FUNCTION New-Object-Card-Default {
+        [CmdletBinding()]
+        PARAM([PARAMETER(Mandatory=$True,ValueFromPipelineByPropertyName=$True)][string[]]$CardText,[PARAMETER(Mandatory=$True,ValueFromPipelineByPropertyName=$True)][string]$CardTitle,[PARAMETER(Mandatory=$True,ValueFromPipelineByPropertyName=$True)][GameSet]$CardGameSet,[PARAMETER(Mandatory=$True,ValueFromPipelineByPropertyName=$True)][CardType]$CardType,[PARAMETER(Mandatory=$True,ValueFromPipelineByPropertyName=$True)][scriptblock[]]$OnPlayScripts,[PARAMETER(Mandatory=$True,ValueFromPipelineByPropertyName=$True)][scriptblock[]]$OnDiscardScripts)
+        BEGIN{}
+        PROCESS{
+        $([Card].GetConstructors() | Where-Object {$_.GetCustomAttributes('ConstructorName').Name -Like 'Default'} ).Invoke(@($CardText,$CardTitle,$CardGameSet,$CardType,$OnPlayScripts,$OnDiscardScripts))
+        }
+        END{}
+        }
+        
+
+#endregion Class Card        
     
 
 CLASS Deck {
@@ -140,12 +168,15 @@ CLASS CardRegister {
 
 }
 
+
 CLASS InvaderCardRegister : CardRegister {}
+
 
 ENUM GameSet {
     Core = 0
     BranchAndClaw = 1
 }
+
 
 ENUM CardType {
     Invader = 0
