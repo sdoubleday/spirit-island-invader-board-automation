@@ -13,12 +13,19 @@ Describe "Base Class CardContainer" {
         }
 
         $Properties = @(
+             'Card CurrentCard'
             ,'Ref Parent'
-            ,'Ref DrawFrom'
+            ,'Ref CardContainerToDrawFrom'
+            ,'Ref Self'
+            ,'Lumberjack lj'
         )
         $Methods = @(
             ,'DrawCard'
-            ,'PlaceDrawnCard'
+            ,'RelinquishCard'
+            ,'ReceiveCard'
+            ,'ClearCard'
+            ,'AfterClearCard'
+            ,'GetSelfRef'
         )
 
 #region run basic tests
@@ -61,12 +68,13 @@ Describe "Class SpiritIslandGameInvaderBoard" {
             ,'Int32 FearPool'
             ,'Int32 InvaderStage'
             ,'Deck InvaderDeck'
-            ,'InvaderCardRegister[] InvaderActionRegistry'
+            ,'CardRegister[] InvaderActionRegistry'
             ,'Deck EventDeck'
             ,'CardRegister EventRegister'
             ,'Deck EventDiscard'
             ,'TurnPhase[] TurnOrder'
             ,'Int32 TurnNumber'
+            ,'Lumberjack lj'
         )
         $Methods = @(
             'Setup'
@@ -213,19 +221,15 @@ Describe "Class Deck" {
         $Properties = @(
             'Card[] Cards'
             ,'ScriptBlock[] OnEmptyScripts'
-            ,'Ref Parent'
-            ,'Ref DrawFrom'
         )
         $Methods = @(
-            'DrawFromTop'
-            ,'DrawFromBottom'
-            ,'PlaceOnTop'
-            ,'PlaceOnBottom'
+            'GetFromTop'
+            ,'GetFromBottom'
+            ,'PutOnTop'
+            ,'PutOnBottom'
             ,'InsertAtPosition'
             ,'Shuffle'
             ,'RunOnEmptyScripts'
-            ,'DrawCard'
-            ,'PlaceDrawnCard'
         )
 
 #region run basic tests
@@ -245,49 +249,6 @@ Describe "Class Deck" {
     }<#END CONTEXT Class Basics#>
 }<#End Describe Class Deck#>
 
-Describe "Class InvaderCardRegister" {
-    Context "Class Basics" {
-        BeforeAll {
-            $obj = [InvaderCardRegister]::NEW()
-            $classname = 'InvaderCardRegister'
-        }
-        
-        It "$classname.GetType().BaseType | Should Be 'CardRegister'" {
-            $obj.GetType().BaseType | Should Be 'CardRegister' }
-
-        $Properties = @(
-            'Card Card'
-            ,'String[] Instructions'
-            ,'String[] InstructionsAddendum'
-            ,'String[][] StackOfInstructionsByTurn'
-            ,'String[] InstructionsForUpcomingTurn'
-            ,'Ref Parent'
-            ,'Ref DrawFrom'
-        )
-        $Methods = @(
-            'ActivateRegister'
-            ,'PrintInstructions'
-            ,'PassCard'
-            ,'EmptyRegister'
-        )
-
-#region run basic tests
-        $ActualProperties = $obj | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty @{name='nameAndType';expression={$_.name + ' - ' + $_.TypeName}}
-        $ActualMethods = $obj | Get-Member -MemberType Method | Select-Object -ExpandProperty name 
-        foreach ($p in $Properties) {
-            IT "Class $classname should have property $p" {
-                $ActualProperties -contains $p | SHOULD BE $true }
-        }<#End Foreach Properties#>
-
-        foreach ($m in $Methods) {
-            IT "Class $classname should have method $m" {
-                $ActualMethods -contains $m | SHOULD BE $true }
-        }<#End Foreach Properties#>
-#endregion run basic tests
-
-    }<#END CONTEXT Class Basics#>
-}<#End Describe InvaderCardRegister#>
-
 Describe "Class CardRegister" {
     Context "Class Basics" {
         BeforeAll {
@@ -299,16 +260,16 @@ Describe "Class CardRegister" {
             $obj.GetType().BaseType | Should Be 'CardContainer' }
 
         $Properties = @(
-            'Card Card'
-            ,'Ref Parent'
-            ,'Ref DrawFrom'
+             'String RegisterName'
+            ,'CardType CardType'
+            ,'String[] Instructions'
+            ,'String[] InstructionsAddendum'
+            ,'String[][] StackOfInstructionsByTurn'
+            ,'String[] InstructionsForUpcomingTurn'
         )
         $Methods = @(
-            'ActivateRegister'
+             'ActivateRegisteredCard'
             ,'PrintInstructions'
-            ,'DrawCard'
-            ,'PlaceDrawnCard'
-            ,'EmptyRegister'
         )
 
 #region run basic tests
@@ -329,4 +290,45 @@ Describe "Class CardRegister" {
 }<#End Describe CardRegister#>
 
 
+
+#InvaderCardRegister subclass deemed unnecessary
+<#
+Describe "Class InvaderCardRegister" {
+    Context "Class Basics" {
+        BeforeAll {
+            $obj = [InvaderCardRegister]::NEW()
+            $classname = 'InvaderCardRegister'
+        }
+        
+        It "$classname.GetType().BaseType | Should Be 'CardRegister'" {
+            $obj.GetType().BaseType | Should Be 'CardRegister' }
+
+        $Properties = @(
+             'String[] Instructions'
+            ,'String[] InstructionsAddendum'
+            ,'String[][] StackOfInstructionsByTurn'
+            ,'String[] InstructionsForUpcomingTurn'
+        )
+        $Methods = @(
+             'ActivateRegister'
+            ,'PrintInstructions'
+        )
+
+#region run basic tests
+        $ActualProperties = $obj | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty @{name='nameAndType';expression={$_.name + ' - ' + $_.TypeName}}
+        $ActualMethods = $obj | Get-Member -MemberType Method | Select-Object -ExpandProperty name 
+        foreach ($p in $Properties) {
+            IT "Class $classname should have property $p" {
+                $ActualProperties -contains $p | SHOULD BE $true }
+        }<#End Foreach Properties# >
+
+        foreach ($m in $Methods) {
+            IT "Class $classname should have method $m" {
+                $ActualMethods -contains $m | SHOULD BE $true }
+        }<#End Foreach Properties# >
+#endregion run basic tests
+
+    }<#END CONTEXT Class Basics# >
+}<#End Describe InvaderCardRegister# >
+#>
 

@@ -1,3 +1,6 @@
 [submodule "New-FunctionFromConstructors"]
 	path = New-FunctionFromConstructors
 	url = https://github.com/sdoubleday/New-FunctionFromConstructors.git
+[submodule "Lumberjack"]
+	path = Lumberjack
+	url = https://github.com/sdoubleday/Lumberjack.git
