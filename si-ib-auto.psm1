@@ -45,12 +45,12 @@ CLASS Card {
     [ScriptBlock[]]$OnPlayScripts,
     [ScriptBlock[]]$OnDiscardScripts
     ) {
-#        $this.CardText         = $CardText
-#        $this.CardTitle        = $CardTitle
-#        $this.CardGameSet      = $CardGameSet
-#        $this.CardType         = $CardType
-#        $this.OnPlayScripts    = $OnPlayScripts
-#        $this.OnDiscardScripts = $OnDiscardScripts
+        $this.CardText         = $CardText
+        $this.CardTitle        = $CardTitle
+        $this.CardGameSet      = $CardGameSet
+        $this.CardType         = $CardType
+        $this.OnPlayScripts    = $OnPlayScripts
+        $this.OnDiscardScripts = $OnDiscardScripts
     
     }
 
@@ -59,13 +59,18 @@ CLASS Card {
  
 #region methods
     [String[]] ReadCard(){
-        Return 'asdf'
-#        Return @($this.CardTitle, $this.CardText)
+        Return @($this.CardTitle) + $this.CardText
     }<#End Method ReadCard#>
 
-    OnPlay(){}<#End Method OnPlay#>
+    [Object] OnPlay(){
+        $returnable = foreach ($s in $this.OnPlayScripts) { $(Add-Member -InputObject $this -MemberType ScriptMethod -Name 'TempMethod' -Value $s -Force -PassThru).TempMethod()  }
+        Return @($returnable)
+    }<#End Method OnPlay#>
 
-    OnDiscard(){}<#End Method OnDiscard#>
+    [Object] OnDiscard(){
+        $returnable = foreach ($s in $this.OnDiscardScripts) { $(Add-Member -InputObject $this -MemberType ScriptMethod -Name 'TempMethod' -Value $s -Force -PassThru).TempMethod()  }
+        Return @($returnable)
+    }<#End Method OnDiscard#>
 
 #endregion methods
 

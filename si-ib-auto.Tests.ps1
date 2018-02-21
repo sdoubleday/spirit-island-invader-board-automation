@@ -113,15 +113,15 @@ Describe "Class Card" {
     BEFOREALL{
         [String[]]$CardText = @("Card Text Line 1","Card Text Line 2 With`r`ncarriage return and newline.")
         [String]$CardTitle='My Test Card'
-        [GameSet]$CardGameSet=[GameSet]::Core
+        [GameSet]$CardGameSet=[GameSet]::BranchAndClaw
         [CardType]$CardType=[CardType]::Fear
-        [ScriptBlock[]]$OnPlayScripts=@({Return 'OnPlayScripts1'},{Return $this.CardType})
+        [ScriptBlock[]]$OnPlayScripts=@({Return 'OnPlayScripts1'},{$this | out-string | write-verbose -Verbose; Return $this.CardType})
         [ScriptBlock[]]$OnDiscardScripts=@({Return 'OnDiscardScripts1'})
 
         $PSCO_Card = [PSCustomObject]@{
             CardText=$CardText;
             CardTitle=$CardTitle;
-            GameSet=$CardGameSet;
+            CardGameSet=$CardGameSet;
             CardType=$CardType;
             OnPlayScripts=$OnPlayScripts;
             OnDiscardScripts=$OnDiscardScripts
@@ -174,26 +174,30 @@ Describe "Class Card" {
         IT "New-Object-Card-Default returns a Card object" {
             ( $PSCO_Card | New-Object-Card-Default ).GetType().Name | Should Be 'Card' }
 
+            ( $PSCO_Card | New-Object-Card-Default ) | out-string | Write-Verbose -Verbose
+
         IT "New-Object-Card-Default CardText[0] is $($CardText[0])" {
             ( $PSCO_Card | New-Object-Card-Default ).CardText[0] | Should Be $CardText[0] }
 
         IT "New-Object-Card-Default CardText[1] is $($CardText[1])" {
-            ( $PSCO_Card | New-Object-Card-Default ).CardText[0] | Should Be $CardText[1] }
+            ( $PSCO_Card | New-Object-Card-Default ).CardText[1] | Should Be $CardText[1] }
 
         IT "New-Object-Card-Default CardTitle is $($CardTitle)" {
             ( $PSCO_Card | New-Object-Card-Default ).CardTitle | Should Be $CardTitle }
 
-        IT "New-Object-Card-Default GameSet is $($GameSet)" {
-            ( $PSCO_Card | New-Object-Card-Default ).GameSet | Should Be $GameSet }
+        IT "New-Object-Card-Default GameSet is $($CardGameSet)" {
+            ( $PSCO_Card | New-Object-Card-Default ).CardGameSet | Should Be $CardGameSet }
 
         IT "New-Object-Card-Default CardType is $($CardType)" {
-            ( $PSCO_Card | New-Object-Card-Default ).CardType | Should Be CardType }
+            ( $PSCO_Card | New-Object-Card-Default ).CardType | Should Be $CardType }
 
         IT "New-Object-Card-Default Invoke-Command OnPlayScripts[0] is 'OnPlayScripts1'" {
             Invoke-Command ( $PSCO_Card | New-Object-Card-Default ).OnPlayScripts[0] | Should Be 'OnPlayScripts1' }
 
+        <#This test is invalid here, because there's no "$this" in this context. It needs to be actually ATTACHED to an object as a member for that to work
         IT "New-Object-Card-Default Invoke-Command OnPlayScripts[1] is '$CardType'" {
             Invoke-Command ( $PSCO_Card | New-Object-Card-Default ).OnPlayScripts[1] | Should Be $CardType }
+        #>
 
         IT "New-Object-Card-Default Invoke-Command OnDiscardScripts[0] is 'OnDiscardScripts1'" {
             Invoke-Command ( $PSCO_Card | New-Object-Card-Default ).OnDiscardScripts[0] | Should Be 'OnDiscardScripts1' }
