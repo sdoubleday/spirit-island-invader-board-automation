@@ -202,7 +202,17 @@ Describe "Class Card" {
     
     CONTEXT "Card functionality" {
         
-        IT 'Card stub' {$true | SHOULD BE $false}
+        IT "Card.ReadCard()[0] | SHOULD BE $CardTitle" {( $PSCO_Card | New-Object-Card-Default ).ReadCard()[0] | SHOULD BE $CardTitle}
+
+        IT "Card.ReadCard()[1] | SHOULD BE $($CardText[0])" {( $PSCO_Card | New-Object-Card-Default ).ReadCard()[1] | SHOULD BE $($CardText[0])}
+
+        IT "Card.ReadCard()[2] | SHOULD BE $($CardText[1])" {( $PSCO_Card | New-Object-Card-Default ).ReadCard()[2] | SHOULD BE $($CardText[1])}
+
+        IT 'Card.OnPlay()[0] | SHOULD BE "OnPlayScripts1"' {( $PSCO_Card | New-Object-Card-Default ).OnPlay()[0] | SHOULD BE "OnPlayScripts1"}
+
+        IT "Card.OnPlay()[1] | SHOULD BE $CardType" {( $PSCO_Card | New-Object-Card-Default ).OnPlay()[1] | SHOULD BE $CardType}
+
+        IT "Card.OnDiscard()[0] | Should Be 'OnDiscardScripts1'" {( $PSCO_Card | New-Object-Card-Default ).OnDiscard()[0] | Should Be 'OnDiscardScripts1'}
 
     }
 
